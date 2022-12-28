@@ -1,0 +1,66 @@
+version: '3'
+
+services:
+    app:
+        build: .docker/php
+        container_name: dojo-php
+        volumes:
+            - .:/var/www
+            - ./.docker/php/config:/usr/local/etc/php/conf.d/
+        networks:
+            - app-network
+    
+    nginx:
+        build: .docker/nginx
+        container_name: dojo-nginx
+        restart: always
+        tty: true
+        ports:
+            - "4444:80"
+        volumes:
+            - .:/var/www
+        networks:
+            - app-network
+        depends_on:
+            - app
+
+    db:
+        image: "mysql:8.0.26"
+        container_name: dojo-db
+        restart: unless-stopped
+        tty: true
+        ports:
+            - "33006:3306"
+        volumes:
+            - ./.docker/dbdata:/var/lib/mysql
+        environment:
+            - "MYSQL_DATABASE=dojo"
+            - "MYSQL_ROOT_USER=root"
+            - "MYSQL_ROOT_PASSWORD=root"
+        networks:
+            - app-network
+
+    phpmyadmin:
+        image: phpmyadmin
+        container_name: dojo-phpmyadmin
+        restart: unless-stopped
+        ports:
+            - "5555:80"
+        links:
+            - db
+        depends_on:
+            - db
+        environment:
+          - "PMA_HOST=db"
+          - "PMA_ARBITRARY=1"
+          - "PMA_HOST=dojo-db"
+          - "PMA_USER=root"
+          - "PMA_PASSWORD=root"
+          - "MAX_EXECUTION_TIME=600"
+          - "MEMORY_LIMIT=256M"
+        networks:
+            - app-network
+
+networks:
+    app-network:
+        driver: bridge
