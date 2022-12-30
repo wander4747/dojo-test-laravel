@@ -12,14 +12,14 @@ class User
 
     public function __construct(
         protected string $name,
-        protected string $email,
+        protected ?string $email = null,
         protected ?int $id = null,
         protected ?string $password = null,
         protected ?string $createdAt = ""
     )
     {
-        $this->password = $this->password == null ? "" : Hash::make($this->password);
         $this->validate();
+        $this->generatePasseword();
     }
 
     public function update(string $name): void
@@ -32,5 +32,20 @@ class User
     {
         DomainValidation::strMaxLength($this->name);
         DomainValidation::strMinLength($this->name);
+    }
+
+    public function password(): string
+    {
+        return (string) $this->password;
+    }
+
+    /**
+     * @return void
+     */
+    public function generatePasseword(): void
+    {
+        if (!is_null($this->password)) {
+            $this->password = Hash::make($this->password);
+        }
     }
 }

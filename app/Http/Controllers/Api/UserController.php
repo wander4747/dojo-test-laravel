@@ -4,15 +4,18 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUserRequest;
+use App\Http\Requests\UpdateUserRequest;
 use App\Presenters\User\CreateUserPresenter;
 use App\Presenters\User\ListUserPresenter;
 use App\Presenters\User\ListUsersPresenter;
 use Core\User\Application\Dto\ListUserInputDto;
 use Core\User\Application\Dto\ListUsersInputDto;
+use Core\User\Application\Dto\UpdateUserInputDto;
 use Core\User\Application\UseCase\CreateUserUseCase;
 use Core\User\Application\Dto\CreateUserInputDto;
 use Core\User\Application\UseCase\ListUsersUseCase;
 use Core\User\Application\UseCase\ListUserUseCase;
+use Core\User\Application\UseCase\UpdateUserUseCase;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -95,13 +98,25 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param UpdateUserRequest $request
+     * @param int $id
+     * @return JsonResponse
      */
-    public function update(Request $request, $id)
+    public function update(UpdateUserRequest $request, UpdateUserUseCase $useCase,int $id)
     {
-        //
+        try {
+            $input = new UpdateUserInputDto(
+                id: $id,
+                name: $request->name,
+                password:  $request->get('password', null)
+            );
+
+            $response = $useCase->execute($input);
+
+            return response()->json((new ListUserPresenter($response))->toJson(), ResponseCode::HTTP_OK);
+        } catch (Throwable $e) {
+            return response()->json(["error" => $e->getMessage()], ResponseCode::HTTP_BAD_REQUEST);
+        }
     }
 
     /**

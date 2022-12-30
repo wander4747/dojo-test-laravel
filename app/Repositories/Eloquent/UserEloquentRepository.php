@@ -49,7 +49,21 @@ class UserEloquentRepository implements UserRepositoryInterface
 
     public function update(User $user): User
     {
-        // TODO: Implement update() method.
+        if (!$userDb = $this->model->find($user->id())) {
+            throw new NotFoundException('User Not Found');
+        }
+
+        if (!empty($user->password())) {
+            $data['password'] = $user->password();
+        }
+
+        $data['name'] =  $user->name;
+
+        $userDb->update($data);
+
+        $userDb->refresh();
+
+        return $this->toUser($userDb);
     }
 
     public function delete(string $id): bool
