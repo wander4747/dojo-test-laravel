@@ -13,7 +13,6 @@ class CreateUserUseCase
         protected UserRepositoryInterface $repository
     )
     {
-
     }
 
     public function execute(CreateUserInputDto $input): CreateUserOutputDto

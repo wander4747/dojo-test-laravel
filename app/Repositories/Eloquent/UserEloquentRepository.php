@@ -3,6 +3,7 @@
 namespace App\Repositories\Eloquent;
 
 use App\Models\User as Model;
+use Core\Shared\Exception\NotFoundException;
 use Core\User\Domain\Entity\User;
 use Core\User\Domain\Repository\UserRepositoryInterface;
 
@@ -26,7 +27,11 @@ class UserEloquentRepository implements UserRepositoryInterface
 
     public function findById(string $id): User
     {
-        // TODO: Implement findById() method.
+        if (!$user = $this->model->find($id)) {
+            throw new NotFoundException("User not found");
+        }
+
+        return $this->toUser($user);
     }
 
     public function findAll(string $filter = '', $order = 'DESC'): array

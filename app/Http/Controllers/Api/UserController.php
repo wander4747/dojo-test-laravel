@@ -5,11 +5,15 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUserRequest;
 use App\Presenters\User\CreateUserPresenter;
+use App\Presenters\User\ListUserPresenter;
 use App\Presenters\User\ListUsersPresenter;
+use Core\User\Application\Dto\ListUserInputDto;
 use Core\User\Application\Dto\ListUsersInputDto;
 use Core\User\Application\UseCase\CreateUserUseCase;
 use Core\User\Application\Dto\CreateUserInputDto;
 use Core\User\Application\UseCase\ListUsersUseCase;
+use Core\User\Application\UseCase\ListUserUseCase;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Symfony\Component\HttpFoundation\Response as ResponseCode;
@@ -22,7 +26,7 @@ class UserController extends Controller
      *
      * @param Request $request
      * @param ListUsersUseCase $useCase
-     * @return Response
+     * @return JsonResponse
      */
     public function index(Request $request, ListUsersUseCase $useCase)
     {
@@ -46,7 +50,7 @@ class UserController extends Controller
      *
      * @param StoreUserRequest $request
      * @param CreateUserUseCase $useCase
-     * @return Response
+     * @return JsonResponse
      */
     public function store(StoreUserRequest $request, CreateUserUseCase $useCase)
     {
@@ -69,12 +73,23 @@ class UserController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param int $id
+     * @param  ListUserUseCase $useCase
+     * @return JsonResponse
      */
-    public function show($id)
+    public function show(int $id, ListUserUseCase $useCase)
     {
-        //
+        try {
+            $input = new ListUserInputDto(
+                id: $id
+            );
+
+            $response = $useCase->execute($input);
+
+            return response()->json((new ListUserPresenter($response))->toJson(), ResponseCode::HTTP_OK);
+        } catch (Throwable $e) {
+            return response()->json(["error" => $e->getMessage()], ResponseCode::HTTP_BAD_REQUEST);
+        }
     }
 
     /**
