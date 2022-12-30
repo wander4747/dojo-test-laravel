@@ -9,19 +9,17 @@ use Core\User\Domain\Repository\UserRepositoryInterface;
 class UserEloquentRepository implements UserRepositoryInterface
 {
 
-    public function __construct(private Model $user)
+    public function __construct(private Model $model)
     {
     }
 
     public function insert(User $entity): User
     {
-        $user = $this->user->create([
+        $user = $this->model->create([
             'name' => $entity->name,
             'email' => $entity->email,
             'password' => $entity->password,
         ]);
-
-
 
         return $this->toUser($user);
     }
@@ -33,7 +31,15 @@ class UserEloquentRepository implements UserRepositoryInterface
 
     public function findAll(string $filter = '', $order = 'DESC'): array
     {
-        // TODO: Implement findAll() method.
+        $query = $this->model;
+        if ($filter) {
+            $query = $query->where('name', 'LIKE', "%{$filter}%");
+        }
+
+        $query = $query->orderBy('id', $order);
+        $paginator = $query->paginate();
+
+        return $paginator->toArray();
     }
 
     public function update(User $user): User

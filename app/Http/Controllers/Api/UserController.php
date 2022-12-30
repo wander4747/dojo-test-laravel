@@ -5,8 +5,11 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreUserRequest;
 use App\Presenters\User\CreateUserPresenter;
+use App\Presenters\User\ListUsersPresenter;
+use Core\User\Application\Dto\ListUsersInputDto;
 use Core\User\Application\UseCase\CreateUserUseCase;
 use Core\User\Application\Dto\CreateUserInputDto;
+use Core\User\Application\UseCase\ListUsersUseCase;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Symfony\Component\HttpFoundation\Response as ResponseCode;
@@ -17,11 +20,25 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @param Request $request
+     * @param ListUsersUseCase $useCase
+     * @return Response
      */
-    public function index()
+    public function index(Request $request, ListUsersUseCase $useCase)
     {
-        //
+        try {
+            $input = new ListUsersInputDto(
+                filter: $request->get('filter', ''),
+                order: $request->get('order', 'DESC')
+            );
+
+            $response = $useCase->execute($input);
+
+            return response()->json((new ListUsersPresenter)->json($response), ResponseCode::HTTP_OK);
+
+        } catch (Throwable $e) {
+            return response()->json(["error" => $e->getMessage()], ResponseCode::HTTP_BAD_REQUEST);
+        }
     }
 
     /**
@@ -41,7 +58,6 @@ class UserController extends Controller
             );
 
             $response = $useCase->execute($input);
-
 
             return response()->json((new CreateUserPresenter($response))->toJson(), ResponseCode::HTTP_CREATED);
 
