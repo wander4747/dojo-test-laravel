@@ -68,7 +68,11 @@ class UserEloquentRepository implements UserRepositoryInterface
 
     public function delete(string $id): bool
     {
-        // TODO: Implement delete() method.
+        if (!$userDb = $this->model->find($id)) {
+            throw new NotFoundException('User Not Found');
+        }
+
+        return $userDb->delete();
     }
 
     private function toUser(object $object): User

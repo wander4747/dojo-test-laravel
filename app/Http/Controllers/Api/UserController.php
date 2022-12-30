@@ -8,11 +8,13 @@ use App\Http\Requests\UpdateUserRequest;
 use App\Presenters\User\CreateUserPresenter;
 use App\Presenters\User\ListUserPresenter;
 use App\Presenters\User\ListUsersPresenter;
+use Core\User\Application\Dto\DeleteUserInputDto;
 use Core\User\Application\Dto\ListUserInputDto;
 use Core\User\Application\Dto\ListUsersInputDto;
 use Core\User\Application\Dto\UpdateUserInputDto;
 use Core\User\Application\UseCase\CreateUserUseCase;
 use Core\User\Application\Dto\CreateUserInputDto;
+use Core\User\Application\UseCase\DeleteUserUseCase;
 use Core\User\Application\UseCase\ListUsersUseCase;
 use Core\User\Application\UseCase\ListUserUseCase;
 use Core\User\Application\UseCase\UpdateUserUseCase;
@@ -122,11 +124,22 @@ class UserController extends Controller
     /**
      * Remove the specified resource from storage.
      *
+     * @param  DeleteUserUseCase  $useCase
      * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
      */
-    public function destroy($id)
+    public function destroy(DeleteUserUseCase $useCase ,int $id)
     {
-        //
+        try {
+            $input = new DeleteUserInputDto(
+                id: $id,
+            );
+
+            $useCase->execute($input);
+
+            return response()->noContent();
+        } catch (Throwable $e) {
+            return response()->json(["error" => $e->getMessage()], ResponseCode::HTTP_BAD_REQUEST);
+        }
     }
 }
