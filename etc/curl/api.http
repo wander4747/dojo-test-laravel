@@ -1,0 +1,58 @@
+# curl --location --request GET 'http://localhost:4444/api/users'
+#--header 'Accept: application/json'
+GET http://localhost:4444/api/users
+Accept: application/json
+###
+
+# curl --location --request GET 'http://localhost:4444/api/users/1'
+#--header 'Accept: application/json'
+GET http://localhost:4444/api/users/1
+Accept: application/json
+###
+
+# curl --location --request POST 'http://localhost:4444/api/users'
+#--header 'Accept: application/json'
+#--form 'name="Wander"'
+#--form 'email="wander@teste.com"'
+#--form 'password="123456"'
+POST http://localhost:4444/api/users
+Accept: application/json
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="name"
+
+"Wander"
+--WebAppBoundary
+Content-Disposition: form-data; name="email"
+
+"wander@teste.com"
+--WebAppBoundary
+Content-Disposition: form-data; name="password"
+
+"123456"
+--WebAppBoundary--
+
+###
+
+
+# curl --location --request PUT 'http://localhost:4444/api/users/2'
+#--header 'Accept: application/json'
+#--header 'Content-Type: application/x-www-form-urlencoded'
+#--data-urlencode 'name=wander douglas'
+#--data-urlencode 'password=123456'
+PUT http://localhost:4444/api/users/2
+Accept: application/json
+Content-Type: application/x-www-form-urlencoded
+
+name=wander+douglas&password=123456
+
+###
+
+# curl --location --request DELETE 'http://localhost:4444/api/users/100'
+DELETE http://localhost:4444/api/users/100
+###
+
+
+
+
