@@ -19,7 +19,7 @@ class User
     )
     {
         $this->validate();
-        $this->generatePasseword();
+        $this->generatePassword();
     }
 
     public function update(string $name): void
@@ -42,7 +42,7 @@ class User
     /**
      * @return void
      */
-    public function generatePasseword(): void
+    public function generatePassword(): void
     {
         if (!is_null($this->password)) {
             $this->password = Hash::make($this->password);
